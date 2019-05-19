@@ -1,12 +1,25 @@
+import java.util.*;
+
 public class xx1{
 	public static void main(String[] args) throws Exception {
+		int i, n=1;
+		Box box = new Box();
 		String s =  new String();
-		if ( System.in.available() != 0 ) {
+		if ( args.length > 0 ) {
+			Scanner scan = new Scanner(args[0]);
+			if (scan.hasNextInt())
+				n = scan.nextInt();
+			if ( n<= 0 )
+				n = 1;
+		}
+//		if ( System.in.available() != 0 ) {
 			byte[] b = System.in.readAllBytes();
 			s = new String(b);
+//		}
+		for (i=0; i<n; ++i) {
+			box.set(s);
+			s = box.toString();
 		}
-		Box box = new Box();
-		box.set(s);
 		print(box);
 	}
 
