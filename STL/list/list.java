@@ -205,6 +205,6 @@ public class list<T>{
 	}
 
 
-	private static final String iteratorError = "24k list>>> iterator out of bound";
+	private static final String iteratorError = "[ 24k list ] >>> iterator out of bound";
 
 }
