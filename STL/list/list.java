@@ -1,3 +1,6 @@
+import java.util.Comparator;
+import java.util.Arrays;
+import java.util.ArrayList;
 
 
 public class list<T>{
@@ -110,6 +113,7 @@ public class list<T>{
 		node.prev = prevNode;
 		node.next = nextNode;
 		nextNode.prev = node;
+		++size;
 		return this;
 	}
 
@@ -123,6 +127,7 @@ public class list<T>{
 			throw new Exception(iteratorError);
 		prevNode.next = nextNode;
 		nextNode.prev = prevNode;
+		--size;
 		return this;
 	}
 
@@ -168,6 +173,39 @@ public class list<T>{
 	}
 
 
-	static final String iteratorError = "24k list>>> iterator out of bound";
+	public list<T> sort(Comparator<? super T> c) {
+		if (size <= 1)
+			return this;
+		ArrayList<Node> na = new ArrayList<Node>();
+		na.ensureCapacity(size);
+		Node node = head.next;
+		for (int i=0; i<size; ++i) {
+			na.add(node);
+			node = node.next;
+		}
+		na.sort((n1, n2)->{
+				return c.compare(n1.data, n2.data);
+			}
+		);
+
+		node = na.get(0);
+		head.next = node;
+		node.prev = head;
+		node.next = na.get(1);
+
+		node = na.get(size - 1);
+		tail.prev = node;
+		node.prev = na.get(size - 2);
+		node.next = tail;
+
+		for (int i=1; i<size-1; ++i) {
+			na.get(i).prev = na.get(i-1);
+			na.get(i).next = na.get(i+1);
+		}
+		return this;
+	}
+
+
+	private static final String iteratorError = "24k list>>> iterator out of bound";
 
 }
