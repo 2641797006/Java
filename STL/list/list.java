@@ -101,12 +101,12 @@ public class list<T>{
 	}
 
 
-	public list<T> insert(iterator it, T t) throws Exception {
+	public list<T> insert(iterator it, T t) throws RuntimeException {
 		Node node, prevNode, nextNode;
 		nextNode = (Node)it;
 		prevNode = nextNode.prev;
 		if (prevNode == null)
-			throw new Exception(iteratorError);
+			throw new RuntimeException(iteratorError);
 		node = new Node(t);
 		prevNode.next = node;
 		node.prev = prevNode;
@@ -117,13 +117,13 @@ public class list<T>{
 	}
 
 
-	public list<T> erase(iterator it) throws Exception {
+	public list<T> erase(iterator it) throws RuntimeException {
 		Node node, prevNode, nextNode;
 		node = (Node)it;
 		prevNode = node.prev;
 		nextNode = node.next;
 		if (prevNode == null || nextNode == null)
-			throw new Exception(iteratorError);
+			throw new RuntimeException(iteratorError);
 		prevNode.next = nextNode;
 		nextNode.prev = prevNode;
 		--size;
@@ -131,22 +131,22 @@ public class list<T>{
 	}
 
 
-	public list<T> push_back(T t) throws Exception {
+	public list<T> push_back(T t) throws RuntimeException {
 		return insert(end(), t);
 	}
 
 
-	public list<T> pop_back() throws Exception {
+	public list<T> pop_back() throws RuntimeException {
 		return erase(rbegin());
 	}
 
 
-	public list<T> push_front(T t) throws Exception {
+	public list<T> push_front(T t) throws RuntimeException {
 		return insert(begin(), t);
 	}
 
 
-	public list<T> pop_front() throws Exception {
+	public list<T> pop_front() throws RuntimeException {
 		return erase(begin());
 	}
 

@@ -1,5 +1,5 @@
 public class xx1{
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		list<String> L = new list<String>();
 
 		for (int i=0; i<100; ++i)
