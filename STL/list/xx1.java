@@ -8,10 +8,25 @@ public class xx1{
 		L.insert(L.rbegin(), "24k");
 		L.pop_back();
 
-		L.reverse();
+		// 排序
 		L.sort((s1, s2)->{ return s1.compareTo(s2); });
 
-		list<String>.iterator it = L.begin();
+		// 迭代器
+		list<String>.iterator it;
+
+		// 遍历输出
+		it = L.begin();
+		while (it != L.end()) {
+			print(it.data + " ");
+			it = it.next();
+		}
+		println();
+		println();
+
+		L.reverse(); // 倒置
+
+		// 遍历输出
+		it = L.begin();
 		while (it != L.end()) {
 			print(it.data + " ");
 			it = it.next();
