@@ -1,5 +1,6 @@
+
 import java.util.Comparator;
-import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class list<T>{
@@ -172,34 +173,36 @@ public class list<T>{
 	}
 
 
+	@SuppressWarnings("unchecked")
 	public list<T> sort(Comparator<? super T> c) {
 		if (size <= 1)
 			return this;
-		ArrayList<Node> na = new ArrayList<Node>();
-		na.ensureCapacity(size);
+
+		Object[] oa = new Object[size];
 		Node node = head.next;
 		for (int i=0; i<size; ++i) {
-			na.add(node);
+			oa[i] = node;
 			node = node.next;
 		}
-		na.sort((n1, n2)->{
-				return c.compare(n1.data, n2.data);
+
+		Arrays.sort(oa, (o1, o2)->{
+				return c.compare(((Node)o1).data, ((Node)o2).data);
 			}
 		);
 
-		node = na.get(0);
+		node = (Node)oa[0];
 		head.next = node;
 		node.prev = head;
-		node.next = na.get(1);
+		node.next = (Node)oa[1];
 
-		node = na.get(size - 1);
+		node = (Node)oa[size - 1];
 		tail.prev = node;
-		node.prev = na.get(size - 2);
+		node.prev = (Node)oa[size - 2];
 		node.next = tail;
 
 		for (int i=1; i<size-1; ++i) {
-			na.get(i).prev = na.get(i-1);
-			na.get(i).next = na.get(i+1);
+			((Node)oa[i]).prev = (Node)oa[i-1];
+			((Node)oa[i]).next = (Node)oa[i+1];
 		}
 		return this;
 	}
@@ -208,3 +211,4 @@ public class list<T>{
 	private static final String iteratorError = "[ 24k list ] >>> iterator out of bound";
 
 }
+
