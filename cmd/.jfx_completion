@@ -1,0 +1,27 @@
+#!/bin/bash
+
+_jfx()
+{
+	local cur prev words cword
+	_init_completion -n : || return
+
+	_filedir class
+
+	COMPREPLY=( ${COMPREPLY[@]%.class} )
+
+	__ltrim_colon_completions "$cur"
+} &&
+complete -F _jfx jfx
+
+_jfxc()
+{
+	local cur prev words cword
+	_init_completion -n : || return
+
+	_filedir java
+
+	__ltrim_colon_completions "$cur"
+} &&
+complete -F _jfxc jfxc
+
+# ex: filetype=sh
