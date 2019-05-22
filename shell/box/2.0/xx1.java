@@ -8,11 +8,12 @@ public class xx1{
 			return;
 		}
 		InputStream f = new FileInputStream(args[0]);
+		InputStreamReader reader = new InputStreamReader(f);
 		StringBuffer sb = new StringBuffer("\n");
 
 		int c, hasBlank=0;
 		for (;;) {
-			c = f.read();
+			c = reader.read();
 			if (c == -1)
 				break;
 			if (c == '\t')
