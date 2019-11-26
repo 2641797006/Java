@@ -52,6 +52,7 @@ public class xx1{
 			println("fail to generating public/private rsa key pair");
 			exit(1);
 		}
+		println("\nGenerating key pair OK");
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -146,6 +147,7 @@ public class xx1{
 		else
 			obs = rsa.decrypt(ibs, finalKey);
 		os.write(obs);
+		println("\n"+(mode == ENCRYPT ? "Encrypt" : "Decrypt") + " OK");
 	}
 
 	static <T> void print(T t) { System.out.print(t); }
