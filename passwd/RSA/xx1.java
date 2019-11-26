@@ -9,17 +9,18 @@ public class xx1{
 
 	static final String help = "Usage:    java me [options] [-in IN_FILE -out OUT_FILE]\n"
 			+ "Valid options are:\n"
-			+ " -e              Encrypt\n"
-			+ " -d              Decrypt\n"
-			+ " -in in_file     Input file\n"
-			+ " -out out_file   Output file\n"
-			+ " -keygen         Generate key\n"
-			+ " -b/-bits %d     Specify key length, the default is 2048 bits";
+			+ " -e                Encrypt\n"
+			+ " -d                Decrypt\n"
+			+ " -in in_file       Input file\n"
+			+ " -out out_file     Output file\n"
+			+ " -k/-key key_file  Specifying the key file\n"
+			+ " -keygen           Generate key\n"
+			+ " -b/-bits %d       Specify key length, the default is 2048 bits";
 
 	public static void generateKey(int keySize) {
 		try {
-		String s, path="id_rsa";
-		print("Generating public/private rsa key pair.\nEnter file in which to save the key (./id_rsa): ");
+		String s, path="./id_rsa";
+		print("Generating public/private rsa key pair.\nEnter file in which to save the key ("+path+"): ");
 		Scanner sc, scan = new Scanner(System.in);
 		sc = new Scanner(scan.nextLine());
 		try { s = sc.next(); }
@@ -38,9 +39,9 @@ public class xx1{
 				exit(1);
 		}
 		var rsa = new RSACrypto();
-		var keyPairMap = rsa.createKeyPair(keySize);
-		Key keyPub = keyPairMap.get("publicKey");
-		Key keyPri = keyPairMap.get("privateKey");
+		var keyPair = rsa.createKeyPair(keySize);
+		Key keyPub = keyPair.getPublic();
+		Key keyPri = keyPair.getPrivate();
 		var base64 = Base64.getEncoder();
 		var out = new FileOutputStream(fileKeyPri);
 		out.write(base64.encode(keyPri.getEncoded()));
@@ -57,7 +58,8 @@ public class xx1{
 		int optind = 0, argsLen = args.length;
 		int mode = ENCRYPT, keySize = 2048;
 		boolean keyGen = false;
-		String in = null, out = null;
+		String in = null, out = null, key = null;
+		Scanner scan = new Scanner(System.in);
 		try {
 		if (argsLen == 0)
 			throw new Exception();
@@ -74,6 +76,9 @@ public class xx1{
 				break;
 			case "-out":
 				out = args[++optind];
+				break;
+			case "-k": case "-key":
+				key = args[++optind];
 				break;
 			case "-keygen":
 				keyGen = true;
@@ -95,6 +100,52 @@ public class xx1{
 				generateKey(keySize);
 			exit(0);
 		}
+		File fileIn = new File(in);
+		File fileOut = new File(out);
+		if ( ! fileIn.canRead() ) {
+			println("Fail to open file "+in);
+			exit(1);
+		}
+		if ( fileOut.exists() ) {
+			println("File "+out+" already exists.");
+			print("Overwrite (y/n)? ");
+			var sc = new Scanner(scan.nextLine());
+			String s = null;
+			try { s = sc.next(); }
+			catch (Exception e) { exit(1); }
+			char c = s.charAt(0);
+			if (c!='y' && c!='Y')
+				exit(1);
+		}
+		byte[] keyBytes;
+		if ( key == null ) {
+			println("Please enter the key: ");
+			String keyBase64 = scan.next();
+			scan.nextLine();
+			keyBytes = keyBase64.getBytes();
+		} else {
+			File fileKey = new File(key);
+			if ( ! fileKey.canRead() ) {
+				println("File to open file "+key);
+				exit(1);
+			}
+			var keyIs = new FileInputStream(fileKey);
+			keyBytes = keyIs.readAllBytes();
+		}
+		var rsa = new RSACrypto();
+		Key finalKey = rsa.bytesToKey(keyBytes);
+		if (finalKey == null) {
+			println("Key format error");
+			exit(1);
+		}
+		byte[] obs;
+		var ibs = new FileInputStream(fileIn).readAllBytes();
+		var os = new FileOutputStream(fileOut);
+		if (mode == ENCRYPT)
+			obs = rsa.encrypt(ibs, finalKey);
+		else
+			obs = rsa.decrypt(ibs, finalKey);
+		os.write(obs);
 	}
 
 	static <T> void print(T t) { System.out.print(t); }
