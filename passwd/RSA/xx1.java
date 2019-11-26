@@ -13,11 +13,16 @@ public class xx1{
 			+ " -d                Decrypt\n"
 			+ " -in in_file       Input file\n"
 			+ " -out out_file     Output file\n"
+			+ " -stdio            Standard input and output\n"
 			+ " -k/-key key_file  Specifying the key file\n"
 			+ " -keygen           Generate key\n"
 			+ " -b/-bits %d       Specify key length, the default is 2048 bits";
 
 	public static void generateKey(int keySize) {
+		if (keySize<768 || keySize>2048) {
+			println("The keysize must be between 768 and 2048");
+			exit(1);
+		}
 		try {
 		String s, path="./id_rsa";
 		print("Generating public/private rsa key pair.\nEnter file in which to save the key ("+path+"): ");
@@ -59,8 +64,11 @@ public class xx1{
 		int optind = 0, argsLen = args.length;
 		int mode = ENCRYPT, keySize = 2048;
 		boolean keyGen = false;
+		boolean isStdio = false;
 		String in = null, out = null, key = null;
 		Scanner scan = new Scanner(System.in);
+
+// argument
 		try {
 		if (argsLen == 0)
 			throw new Exception();
@@ -87,6 +95,9 @@ public class xx1{
 			case "-b": case "-bits":
 				keySize = Integer.parseInt(args[++optind]);
 				break;
+			case "-stdio":
+				isStdio = true;
+				break;
 			}
 			++optind;
 		}
@@ -94,15 +105,37 @@ public class xx1{
 			println(help);
 			exit(1);
 		}
+
+// key generate
 		if (keyGen) {
-			if (keySize<768 || keySize>2048)
-				println("The keysize must be between 768 and 2048");
-			else
-				generateKey(keySize);
+			generateKey(keySize);
 			exit(0);
 		}
-		File fileIn = new File(in);
-		File fileOut = new File(out);
+
+		byte[] ibs, obs;
+		File fileIn=null, fileOut=null;
+		if (in==null && out==null)
+			isStdio = true;
+
+	if (isStdio) {
+		println("Please enter the text: ");
+		ibs = scan.nextLine().getBytes();
+		if (mode == DECRYPT)
+			ibs = Base64.getDecoder().decode(ibs);
+		//ibs = System.in.readAllBytes();
+	} else {
+
+// in,out file
+		if (in == null) {
+			println("Missing input file");
+			exit(1);
+		}
+		if (out == null) {
+			println("Missing output file");
+			exit(1);
+		}
+		fileIn = new File(in);
+		fileOut = new File(out);
 		if ( ! fileIn.canRead() ) {
 			println("Fail to open file "+in);
 			exit(1);
@@ -118,6 +151,10 @@ public class xx1{
 			if (c!='y' && c!='Y')
 				exit(1);
 		}
+		ibs = new FileInputStream(fileIn).readAllBytes();
+	}
+
+// key file
 		byte[] keyBytes;
 		if ( key == null ) {
 			println("Please enter the key: ");
@@ -133,20 +170,31 @@ public class xx1{
 			var keyIs = new FileInputStream(fileKey);
 			keyBytes = keyIs.readAllBytes();
 		}
+
+// crypto
 		var rsa = new RSACrypto();
 		Key finalKey = rsa.bytesToKey(keyBytes);
 		if (finalKey == null) {
 			println("Key format error");
 			exit(1);
 		}
-		byte[] obs;
-		var ibs = new FileInputStream(fileIn).readAllBytes();
-		var os = new FileOutputStream(fileOut);
 		if (mode == ENCRYPT)
 			obs = rsa.encrypt(ibs, finalKey);
 		else
 			obs = rsa.decrypt(ibs, finalKey);
-		os.write(obs);
+
+// output
+		if (isStdio) {
+			if (mode == ENCRYPT)
+				obs = Base64.getEncoder().encode(obs);
+			println("\nOutput:");
+			println(new String(obs));
+		} else {
+			var os = new FileOutputStream(fileOut);
+			os.write(obs);
+		}
+
+// end
 		println("\n"+(mode == ENCRYPT ? "Encrypt" : "Decrypt") + " OK");
 	}
 
