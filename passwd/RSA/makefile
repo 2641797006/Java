@@ -1,3 +1,4 @@
+.PHONY: source
 source: akm/xx1.class
 	@echo make OK
 
